@@ -1,0 +1,120 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="selection-ctn">
+    <span>统计间隔:</span>
+    <span><button class="step blue-button" value="10">10秒</button></span>
+    <!--<span><button class="step gray-button" value="30">30秒</button></span>-->
+    <!--<span><button class="step gray-button" value="60">1分钟</button></span>-->
+</div>
+<!--<div class="selection-ctn">-->
+<!--<span>统计时间:</span>-->
+<!--<span><button class="duration blue-button" value="1">过去一小时</button></span>-->
+<!--<span><button class="duration gray-button" value="24">过去一天</button></span>-->
+<!--<span><button class="duration gray-button" value="72">过去三天</button></span>-->
+<!--<span><button class="duration gray-button" value="0">所有历史</button></span>-->
+<!--</div>-->
+
+<div id="chart-ctn" style="width: 100%;height:600px;"></div>
+
+{% endblock %}
+
+{% block pageCSS %}
+{% endblock %}
+
+{% block pageJS %}
+<script type="text/javascript" src="/asserts/javascripts/echarts.min.js"></script>
+<script type="text/javascript">
+    // 切换统计间隔时间
+    $(function () {
+        $(".step").click(function () {
+            $(".step.blue-button").addClass("gray-button")
+            $(".step.blue-button").removeClass("blue-button")
+            $(this).removeClass("gray-button")
+            $(this).addClass("blue-button")
+            reloadChart()
+        })
+    })
+
+    //    // 切换统计时间区间
+    //    $(function () {
+    //        $(".duration").click(function () {
+    //            $(".duration.blue-button").addClass("gray-button")
+    //            $(".duration.blue-button").removeClass("blue-button")
+    //            $(this).removeClass("gray-button")
+    //            $(this).addClass("blue-button")
+    //            reloadChart()
+    //        })
+    //    })
+
+    // 重新加载折线图
+    function reloadChart() {
+        var step = $(".step.blue-button").attr("value")
+        var myChart = echarts.init(document.getElementById('chart-ctn'));
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: '{{name}} OPS'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['总操作', '读操作', '写操作', '更新操作']
+            },
+            toolbox: {
+                feature: {saveAsImage: {}}
+            },
+            yAxis: [
+                {type: 'value'}
+            ],
+            dataZoom: [
+                {
+                    type: 'slider',
+                    show: true,
+                    xAxisIndex: [0],
+                    start: 0,
+                    end: 100
+                }
+            ]
+        };
+        $.ajax({
+            type: "POST",
+            url: "/api/engine",
+            contentType: "application/json",
+            async: true,
+            data: JSON.stringify({
+                "engine": "{{name}}",
+                "step": step
+            }),
+            dataType: "json",
+            success: function (data) {
+                option.xAxis = {
+                    data: data['time_bucket']
+                }
+                option.series = [{
+                    name: '总操作',
+                    type: 'line',
+                    data: data['ops_total']
+                }, {
+                    name: '读操作',
+                    type: 'line',
+                    data: data['ops_read']
+                }, {
+                    name: '写操作',
+                    type: 'line',
+                    data: data['ops_insert']
+                }, {
+                    name: '更新操作',
+                    type: 'line',
+                    data: data['ops_update']
+                }]
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option);
+            }
+        })
+    }
+
+    reloadChart()
+</script>
+{% endblock %}

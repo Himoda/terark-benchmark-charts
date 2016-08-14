@@ -1,0 +1,34 @@
+{% extends '../layout.html' %}
+
+{% block content %}
+
+<div class="code-list-main">
+    <div class="code-list">
+        <div class="code-list-body">
+            {% for i in [1,2,3] %}
+            {% include 'list-item.html'%}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="code-list-sidebar">
+        <div class="shameimaru-section">
+            <a class="shameimaru-link">
+                <img src="/asserts/image/logo.png" srcset="https://pic2.zhimg.com/5238add605831af596223bf04311a6b1_540x450.png 2x" alt="知乎周刊 四大名著-首页右上">
+            </a>
+            <a class="shameimaru-close z-ico-shameimaru-close" data-tooltip="s$b$不再显示" rel="nofollow"></a>
+            <img class="shameimaru-pixel" src="https://sugar.zhihu.com/track?vs=1&amp;ai=1108&amp;ut=da5ddd5394754758978b539e62581620&amp;cg=2&amp;ts=1470371562.63&amp;st=defaultA&amp;si=c88132a3369a454a8fe1a13375526400&amp;lu=17205&amp;hn=ad-engine.ad-engine.42c7612b&amp;pf=Mac%20OS%20X&amp;az=1&amp;sg=a1051dee346aaf9f175e10a905b0ae7a&amp;at=impression">
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block pageCSS %}
+{% endblock %}
+
+{% block pageJS %}
+<script type="text/javascript">
+
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends '../layout.html' %}
+
+{% block content %}
+
+<div class="settings">
+    <div class="settings-body">
+        <div class="settings-title">基本资料</div>
+        <div class="settings-fields">
+            <div class="settings-field">
+                <span class="name">姓名</span>
+                <span><input id="name" type="text" class="input-text" value="{{user.name}}"></span>
+            </div>
+            <div class="settings-field">
+                <span class="name">个性域名</span>
+                <span><input id="url_name" type="text" class="input-text" value="{{user.url_name}}"></span>
+            </div>
+            <div class="settings-field">
+                <span class="name">邮箱</span>
+                <span><input id="email" type="text" class="input-text" value="{{user.email}}"></span>
+            </div>
+            <div class="settings-field">
+                <span class="name">手机</span>
+                <span><input type="text" class="input-text disabled" value="{{user.tel}}"></span>
+                <span><button class="gray-button">修改</button></span>
+            </div>
+        </div>
+        <div class="settings-title">账户和安全</div>
+        <div class="settings-fields">
+            <div class="settings-field">
+                <span class="name">账户密码</span>
+                <span><button class="gray-button">修改</button></span>
+            </div>
+        </div>
+
+        <div class="settings-title">社交</div>
+        <div class="settings-fields">
+            <div class="settings-field">
+                <span class="name">签名</span>
+                <span><input id="signature" type="text" class="input-text" value="{{user.signature}}"></span>
+            </div>
+            <div class="settings-field">
+                <span class="name">公开邮箱</span>
+                <span>
+                    <input name="public_email" type="radio" value="1" {%if user.public_email== 1%} checked {%endif%}/>是
+                    <input name="public_email" type="radio" value="0" {%if user.public_email== 0%} checked {%endif%}
+                           class="mleft20"/>否
+                </span>
+            </div>
+        </div>
+        <button id="save-btn" class="blue-button save-btn" type="button">保存</button>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block pageCSS %}
+{% endblock %}
+
+{% block pageJS %}
+<script type="text/javascript">
+    // 修改并保存个人设置
+    $(function () {
+        $("#save-btn").click(function () {
+            var name = $("#name").val()
+            var url_name = $("#url_name").val()
+            var email = $("#email").val()
+            var signature = $("#signature").val()
+            var public_email = $("[name=public_email]:checked").val()
+            $.ajax({
+                type: "POST",
+                url: "/user/settings/save",
+                contentType: "application/json",
+                async: true,
+                data: JSON.stringify({
+                    "name": name,
+                    "url_name": url_name,
+                    "email": email,
+                    "signature": signature,
+                    "public_email": public_email
+                }),
+                dataType: "json",
+                success: function (response) {
+                    if (response.status == 200) {
+                        alert("保存成功!")
+                    } else {
+                        alert(response.msg)
+                    }
+                }
+            })
+        })
+    })
+</script>
+{% endblock %}

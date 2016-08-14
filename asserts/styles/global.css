@@ -1,0 +1,142 @@
+body {
+    color: #555;
+    font-size: 15px;
+    line-height: 1.7;
+    font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+    background: #FFF;
+    -webkit-font-smoothing: subpixel-antialiased;
+    height: 100%;
+    display: block;
+}
+
+body, ul, ol, li, p, h1, h2, h3, h4, h5 {
+    margin: 0;
+    padding: 0;
+}
+
+a, a:hover, a:visited, a:-webkit-any-link {
+    text-underline: none;
+    text-decoration: none;
+    color: #555;
+}
+
+input {
+    outline: none;
+}
+
+input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
+    color: #eee; opacity:1;
+}
+input:-moz-placeholder, textarea:-moz-placeholder {
+    color: #eee; opacity:1;
+}
+input::-moz-placeholder, textarea::-moz-placeholder {
+    color: #eee; opacity:1;
+}
+input:-ms-input-placeholder, textarea:-ms-input-placeholder {
+    color: #eee; opacity:1;
+}
+
+.clearfix {
+    clear: both;
+}
+
+.mbottom10 {margin-bottom: 10px;}
+
+.mtop10{margin-top: 10px;}
+.mtop20{margin-top: 20px;}
+.mleft10 {margin-left: 10px;}
+.mleft20 {margin-left: 20px;}
+
+.p10 {padding: 10px;}
+.pleft10 {padding-left: 10px;}
+
+.hide {display: none;}
+.show {display: block;}
+
+.f14 {font-size: 14px;}
+.f16 {font-size: 16px;}
+.f18 {font-size: 18px;}
+.f20 {font-size: 20px;}
+
+
+.left0 {left: 0em;}
+.left4 {left: 4em;}
+.left8 {left: 8em;}
+
+
+.disabled {
+    background-color: #AAA!important;
+    cursor: text!important;
+}
+
+
+/** widgets **/
+.blue-button {
+    background: #3b74ac;
+    box-shadow: none;
+    border: 0;
+    border-radius: 3px;
+    line-height: 41px;
+    color: #fff;
+    display: block;
+    padding: 0;
+    width: 100%;
+    font-size: 15px;
+    text-align: center;
+    text-shadow: 0 1px 1px rgba(0,0,0,.2);
+    outline: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+.blue-button:hover {
+    background: #507bac;
+}
+
+.gray-button {
+    background: #a6aaaf;
+    box-shadow: none;
+    border: 0;
+    border-radius: 3px;
+    line-height: 41px;
+    color: #fff;
+    display: block;
+    padding: 0;
+    width: 100%;
+    font-size: 15px;
+    text-align: center;
+    text-shadow: 0 1px 1px rgba(0,0,0,.2);
+    outline: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+.gray-button:hover {
+    background: #9b9fa2;
+}
+
+.input-text {
+    padding: 1em .8em;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #EEE;
+    border-radius: 0;
+    margin: 0;
+    background: #FFF;
+    line-height: 19px;
+    font-size: 14px;
+    cursor: text;
+}
+
+/* 父元素需要时relative + inline-block */
+.blue-slider-bar {
+    position: absolute;
+    bottom: 0;
+    margin: 0 .8em;
+    width: 2.4em;
+    height: 2px;
+    background: #3b74ac;
+    -webkit-transition: left .15s ease-in;
+    transition: left .15s ease-in;
+}
