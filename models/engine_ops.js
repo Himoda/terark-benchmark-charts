@@ -6,22 +6,28 @@ var Sequelize = require("sequelize")
 
 var db = require("./db")
 
-var Engine = db.define('engine_test_10s', {
+var EngineOps = db.define('engine_test_ops_10s', {
     time_bucket: Sequelize.INTEGER,
     ops: Sequelize.INTEGER,
     ops_type: Sequelize.INTEGER,
     engine_name: Sequelize.TEXT
 }, {
     timestamps: false,
-    tableName: "engine_test_10s"
+    tableName: "engine_test_ops_10s"
 });
 
 
-Engine.findAllByName = function (name) {
-    return Engine.findAll({
+EngineOps.findAllByName = function (name, duration) {
+    var start_time_bucket = parseInt(new Date().getTime()/1000 - duration * 60 * 60)
+    return EngineOps.findAll({
         attributes: ["time_bucket", "ops", "ops_type"],
         order: [["time_bucket", "ASC"]],
-        where: {"engine_name": name},
+        where: {
+            engine_name: name,
+            time_bucket: {
+                $gte: start_time_bucket
+            }
+        },
         raw: true
     }).then(function (data) {
         var result = {
@@ -60,4 +66,4 @@ Engine.findAllByName = function (name) {
     })
 }
 
-module.exports = Engine
+module.exports = EngineOps

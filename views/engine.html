@@ -1,21 +1,24 @@
 {% extends 'layout.html' %}
 
 {% block content %}
+<div class="selection-ctn"><h3>{{name}}</h3></div>
 <div class="selection-ctn">
     <span>统计间隔:</span>
     <span><button class="step blue-button" value="10">10秒</button></span>
     <!--<span><button class="step gray-button" value="30">30秒</button></span>-->
     <!--<span><button class="step gray-button" value="60">1分钟</button></span>-->
 </div>
-<!--<div class="selection-ctn">-->
-<!--<span>统计时间:</span>-->
-<!--<span><button class="duration blue-button" value="1">过去一小时</button></span>-->
-<!--<span><button class="duration gray-button" value="24">过去一天</button></span>-->
-<!--<span><button class="duration gray-button" value="72">过去三天</button></span>-->
-<!--<span><button class="duration gray-button" value="0">所有历史</button></span>-->
-<!--</div>-->
+<div class="selection-ctn">
+    <span>统计范围:</span>
+    <span><button class="duration blue-button" value="12">12小时</button></span>
+    <span><button class="duration gray-button" value="24">24小时</button></span>
+    <span><button class="duration gray-button" value="72">72小时</button></span>
+    <span><button class="duration gray-button" value="0">所有历史</button></span>
+</div>
 
-<div id="chart-ctn" style="width: 100%;height:600px;"></div>
+<div id="ops-chart" style="width: 100%;height:400px;"></div>
+<div id="cpu-chart" style="width: 100%;height:400px;"></div>
+<div id="memory-chart" style="width: 100%;height:400px;"></div>
 
 {% endblock %}
 
@@ -24,6 +27,8 @@
 
 {% block pageJS %}
 <script type="text/javascript" src="/asserts/javascripts/echarts.min.js"></script>
+<script type="text/javascript" src="/asserts/javascripts/common.js"></script>
+
 <script type="text/javascript">
     // 切换统计间隔时间
     $(function () {
@@ -36,25 +41,30 @@
         })
     })
 
-    //    // 切换统计时间区间
-    //    $(function () {
-    //        $(".duration").click(function () {
-    //            $(".duration.blue-button").addClass("gray-button")
-    //            $(".duration.blue-button").removeClass("blue-button")
-    //            $(this).removeClass("gray-button")
-    //            $(this).addClass("blue-button")
-    //            reloadChart()
-    //        })
-    //    })
+    // 切换统计时间区间
+    $(function () {
+        $(".duration").click(function () {
+            $(".duration.blue-button").addClass("gray-button")
+            $(".duration.blue-button").removeClass("blue-button")
+            $(this).removeClass("gray-button")
+            $(this).addClass("blue-button")
+            reloadChart()
+        })
+    })
 
-    // 重新加载折线图
+    // 重新加载页面内的所有折线图
     function reloadChart() {
         var step = $(".step.blue-button").attr("value")
-        var myChart = echarts.init(document.getElementById('chart-ctn'));
+        var duration = $(".duration.blue-button").attr("value")
+
+        var opsChart = echarts.init(document.getElementById('ops-chart'));
+        var cpuChart = echarts.init(document.getElementById('cpu-chart'))
+        var memoryChart = echarts.init(document.getElementById('memory-chart'))
+
         // 指定图表的配置项和数据
-        var option = {
+        var opsOption = {
             title: {
-                text: '{{name}} OPS'
+                text: 'OPS'
             },
             tooltip: {
                 trigger: 'axis'
@@ -78,6 +88,61 @@
                 }
             ]
         };
+        var cpuOption = {
+            title: {
+                text: 'CPU Usage'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['利用率(%)']
+            },
+            toolbox: {
+                feature: {saveAsImage: {}}
+            },
+            yAxis: [
+                {type: 'value'}
+            ],
+            dataZoom: [
+                {
+                    type: 'slider',
+                    show: true,
+                    xAxisIndex: [0],
+                    start: 0,
+                    end: 100
+                }
+            ]
+        };
+        // 指定图表的配置项和数据
+        var memoryOption = {
+            title: {
+                text: 'Memory Usage'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['Total', 'Free', 'Cached', 'Used']
+            },
+            toolbox: {
+                feature: {saveAsImage: {}}
+            },
+            yAxis: [
+                {type: 'value'}
+            ],
+            dataZoom: [
+                {
+                    type: 'slider',
+                    show: true,
+                    xAxisIndex: [0],
+                    start: 0,
+                    end: 100
+                }
+            ]
+        };
+
+        // make the request
         $.ajax({
             type: "POST",
             url: "/api/engine",
@@ -85,14 +150,20 @@
             async: true,
             data: JSON.stringify({
                 "engine": "{{name}}",
-                "step": step
+                "step": step,
+                "duration": duration
             }),
             dataType: "json",
             success: function (data) {
-                option.xAxis = {
-                    data: data['time_bucket']
+                // OPS
+                opsOption.xAxis = {
+                    data: data['time_bucket'].map(function (current, index, array) {
+                        var t = new Date(1970, 0, 1) // Epoch
+                        t.setSeconds(current);
+                        return t.Format("yyyy-MM-dd hh:mm:ss")
+                    })
                 }
-                option.series = [{
+                opsOption.series = [{
                     name: '总操作',
                     type: 'line',
                     data: data['ops_total']
@@ -109,12 +180,52 @@
                     type: 'line',
                     data: data['ops_update']
                 }]
-                // 使用刚指定的配置项和数据显示图表。
-                myChart.setOption(option);
+                opsChart.setOption(opsOption);
+
+                // CPU Usage
+                cpuOption.xAxis = {
+                    data: data['time_bucket'].map(function (current, index, array) {
+                        var t = new Date(1970, 0, 1) // Epoch
+                        t.setSeconds(current);
+                        return t.Format("yyyy-MM-dd hh:mm:ss")
+                    })
+                }
+                cpuOption.series = [{
+                    name: '利用率(%)',
+                    type: 'line',
+                    data: data['cpu_usage']
+                }]
+                cpuChart.setOption(cpuOption);
+
+                // Memory Usage
+                memoryOption.xAxis = {
+                    data: data['time_bucket'].map(function (current, index, array) {
+                        var t = new Date(1970, 0, 1) // Epoch
+                        t.setSeconds(current);
+                        return t.Format("yyyy-MM-dd hh:mm:ss")
+                    })
+                }
+                memoryOption.series = [{
+                    name: 'Total',
+                    type: 'line',
+                    data: data['total_memory']
+                }, {
+                    name: 'Free',
+                    type: 'line',
+                    data: data['free_memory']
+                }, {
+                    name: 'Cached',
+                    type: 'line',
+                    data: data['cached_memory']
+                }, {
+                    name: 'Used',
+                    type: 'line',
+                    data: data['used_memory']
+                }]
+                memoryChart.setOption(memoryOption);
             }
         })
     }
-
     reloadChart()
 </script>
 {% endblock %}
