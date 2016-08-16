@@ -12,13 +12,16 @@ var router = express.Router()
 
 
 /** html render **/
+router.get('/?', function (req, resp) {
+    resp.redirect('/engine/terarkdb')
+})
+
 router.get('/engine/:name', function (req, resp) {
     var name = req.params.name
     resp.render('engine', {name: name})
 })
 
 /** JSON API **/
-
 router.post('/api/engine', function (req, resp) {
     var name = req.body.engine        // terarkdb, wiredtiger, rocksdb
     var duration = req.body.duration  // x hours
