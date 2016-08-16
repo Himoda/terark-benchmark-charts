@@ -65,6 +65,7 @@
 
     // 重新加载页面内的所有折线图
     function reloadChart() {
+        $("#loading").show();
         var step = $(".step.blue-button").attr("value")
         var duration = $(".duration.blue-button").attr("value")
 
@@ -128,7 +129,7 @@
         // 指定图表的配置项和数据
         var memoryOption = {
             title: {
-                text: 'Memory Usage'
+                text: 'Memory Usage(MB)'
             },
             tooltip: {
                 trigger: 'axis'
