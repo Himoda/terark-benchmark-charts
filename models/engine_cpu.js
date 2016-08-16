@@ -8,7 +8,7 @@ var db = require("./db")
 
 var EngineCpu = db.define('engine_test_cpu_10s', {
     time_bucket: Sequelize.INTEGER,
-    usage: Sequelize.INTEGER
+    usage: Sequelize.DOUBLE
 }, {
     timestamps: false,
     tableName: "engine_test_cpu_10s"
@@ -27,12 +27,17 @@ EngineCpu.findAllByTimeBucket = function (name, time_bucket) {
         },
         raw: true
     }).then(function (data) {
-        // TODO fake
-        data.usage = []
-        for (var i = 0; i < time_bucket.length; i++) {
-            data.usage[i] = 10 + Math.random() * 5
-        }
-        return data
+        var usage = []
+        var i = 0
+        time_bucket.map(function (item) {
+            if(i < data.length && item == data[i].time_bucket) {
+                usage.push(data[i].usage)
+                i++
+            }else{
+                usage.push('')
+            }
+        })
+        return usage
     })
 }
 

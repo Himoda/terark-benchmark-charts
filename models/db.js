@@ -5,7 +5,7 @@
 var Sequelize = require("sequelize")
 var assert = require('assert')
 
-module.exports = new Sequelize('benchmark', 'terark_benchmark', 'benchmark@123', {
+module.exports = new Sequelize('benchmark', 'terark_benchmark', 'bm@123123', {
     host: 'rds432w5u5d17qd62iq3o.mysql.rds.aliyuncs.com',
     dialect: 'mysql',
     logging: false,

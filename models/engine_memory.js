@@ -8,6 +8,7 @@ var db = require("./db")
 
 var EngineMemory = db.define('engine_test_memory_10s', {
     time_bucket: Sequelize.INTEGER,
+    total_memory: Sequelize.INTEGER,
     free_memory: Sequelize.INTEGER,
     cached_memory: Sequelize.INTEGER,
     used_memory: Sequelize.INTEGER
@@ -28,19 +29,28 @@ EngineMemory.findAllByTimeBucket = function (name, time_bucket) {
             }
         },
         raw: true
-    }).then(function (data) {
-        // TODO fake
-        data.total_memory = []
-        data.free_memory = []
-        data.cached_memory = []
-        data.used_memory = []
-        for (var i = 0; i < time_bucket.length; i++) {
-            data.total_memory[i] = 40000
-            data.free_memory[i] = Math.random() * 10000
-            data.cached_memory[i] = Math.random() * 20000
-            data.used_memory[i] = Math.random() * 30000
-        }
-        return data
+    }).then(function(data){
+        result = {}
+        result.total_memory = []
+        result.free_memory = []
+        result.cached_memory = []
+        result.used_memory = []
+        var i = 0
+        time_bucket.map(function (item) {
+            if(i < data.length && item == data[i].time_bucket) {
+                result.total_memory.push(data[i].total_memory)
+                result.free_memory.push(data[i].free_memory)
+                result.cached_memory.push(data[i].cached_memory)
+                result.used_memory.push(data[i].used_memory)
+                i++
+            }else{
+                result.total_memory.push('')
+                result.free_memory.push('')
+                result.cached_memory.push('')
+                result.used_memory.push('')
+            }
+        })
+        return result
     })
 }
 

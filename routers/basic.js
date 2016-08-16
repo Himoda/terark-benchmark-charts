@@ -26,8 +26,8 @@ router.post('/api/engine', function (req, resp) {
     EngineOps.findAllByName(name, duration).then(function (ops_data) {
         result = ops_data
         return EngineCpu.findAllByTimeBucket(name, result.time_bucket)
-    }).then(function (cpu_data) {
-        result.cpu_usage = cpu_data.usage
+    }).then(function (cpu_usage) {
+        result.cpu_usage = cpu_usage
         return EngineMemory.findAllByTimeBucket(name, result.time_bucket)
     }).then(function (memory_data) {
         result.total_memory = memory_data.total_memory
