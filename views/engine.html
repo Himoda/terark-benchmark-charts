@@ -9,13 +9,13 @@
     <!--<span><button class="step gray-button" value="60">1分钟</button></span>-->
 </div>
 <div class="selection-ctn">
-    <span>统计范围:</span>
-    <span><button class="duration gray-button" value="1">1小时</button></span>
-    <span><button class="duration blue-button" value="3">3小时</button></span>
+    <span>统计历史:</span>
+    <span><button class="duration blue-button" value="1">1小时</button></span>
+    <span><button class="duration gray-button" value="3">3小时</button></span>
     <span><button class="duration gray-button" value="12">12小时</button></span>
     <span><button class="duration gray-button" value="24">24小时</button></span>
     <span><button class="duration gray-button" value="72">72小时</button></span>
-    <span><button class="duration gray-button" value="0">所有历史</button></span>
+    <span><button class="duration gray-button" value="0">所有时间</button></span>
 </div>
 
 <div id="loading">
@@ -156,90 +156,94 @@
             ]
         };
 
-        // make the request
-        $.ajax({
-            type: "POST",
-            url: "/api/engine",
-            contentType: "application/json",
-            async: true,
-            data: JSON.stringify({
-                "engine": "{{name}}",
-                "step": step,
-                "duration": duration
-            }),
-            dataType: "json",
-            success: function (data) {
-                $("#loading").hide();
-                // OPS
-                opsOption.xAxis = {
-                    data: data['time_bucket'].map(function (current, index, array) {
-                        var t = new Date(1970, 0, 1) // Epoch
-                        t.setSeconds(current);
-                        return t.Format("yyyy-MM-dd hh:mm:ss")
-                    })
-                }
-                opsOption.series = [{
-                    name: '总操作',
-                    type: 'line',
-                    data: data['ops_total']
-                }, {
-                    name: '读操作',
-                    type: 'line',
-                    data: data['ops_read']
-                }, {
-                    name: '写操作',
-                    type: 'line',
-                    data: data['ops_insert']
-                }, {
-                    name: '更新操作',
-                    type: 'line',
-                    data: data['ops_update']
-                }]
-                opsChart.setOption(opsOption);
+        function makeRequest() {
+            $.ajax({
+                type: "POST",
+                url: "/api/engine",
+                contentType: "application/json",
+                async: true,
+                data: JSON.stringify({
+                    "engine": "{{name}}",
+                    "step": step,
+                    "duration": duration
+                }),
+                dataType: "json",
+                success: function (data) {
+                    $("#loading").hide();
+                    // OPS
+                    opsOption.xAxis = {
+                        data: data['time_bucket'].map(function (current, index, array) {
+                            var t = new Date(1970, 0, 1) // Epoch
+                            t.setSeconds(current);
+                            return t.Format("yyyy-MM-dd hh:mm:ss")
+                        })
+                    }
+                    opsOption.series = [{
+                        name: '总操作',
+                        type: 'line',
+                        data: data['ops_total']
+                    }, {
+                        name: '读操作',
+                        type: 'line',
+                        data: data['ops_read']
+                    }, {
+                        name: '写操作',
+                        type: 'line',
+                        data: data['ops_insert']
+                    }, {
+                        name: '更新操作',
+                        type: 'line',
+                        data: data['ops_update']
+                    }]
+                    opsChart.setOption(opsOption);
 
-                // CPU Usage
-                cpuOption.xAxis = {
-                    data: data['time_bucket'].map(function (current, index, array) {
-                        var t = new Date(1970, 0, 1) // Epoch
-                        t.setSeconds(current);
-                        return t.Format("yyyy-MM-dd hh:mm:ss")
-                    })
-                }
-                cpuOption.series = [{
-                    name: '利用率(%)',
-                    type: 'line',
-                    data: data['cpu_usage']
-                }]
-                cpuChart.setOption(cpuOption);
+                    // CPU Usage
+                    cpuOption.xAxis = {
+                        data: data['time_bucket'].map(function (current, index, array) {
+                            var t = new Date(1970, 0, 1) // Epoch
+                            t.setSeconds(current);
+                            return t.Format("yyyy-MM-dd hh:mm:ss")
+                        })
+                    }
+                    cpuOption.series = [{
+                        name: '利用率(%)',
+                        type: 'line',
+                        data: data['cpu_usage']
+                    }]
+                    cpuChart.setOption(cpuOption);
 
-                // Memory Usage
-                memoryOption.xAxis = {
-                    data: data['time_bucket'].map(function (current, index, array) {
-                        var t = new Date(1970, 0, 1) // Epoch
-                        t.setSeconds(current);
-                        return t.Format("yyyy-MM-dd hh:mm:ss")
-                    })
+                    // Memory Usage
+                    memoryOption.xAxis = {
+                        data: data['time_bucket'].map(function (current, index, array) {
+                            var t = new Date(1970, 0, 1) // Epoch
+                            t.setSeconds(current);
+                            return t.Format("yyyy-MM-dd hh:mm:ss")
+                        })
+                    }
+                    memoryOption.series = [{
+                        name: 'Total',
+                        type: 'line',
+                        data: data['total_memory']
+                    }, {
+                        name: 'Free',
+                        type: 'line',
+                        data: []
+                    }, {
+                        name: 'Cached',
+                        type: 'line',
+                        data: data['cached_memory']
+                    }, {
+                        name: 'Used',
+                        type: 'line',
+                        data: data['used_memory']
+                    }]
+                    memoryChart.setOption(memoryOption);
                 }
-                memoryOption.series = [{
-                    name: 'Total',
-                    type: 'line',
-                    data: data['total_memory']
-                }, {
-                    name: 'Free',
-                    type: 'line',
-                    data: data['free_memory']
-                }, {
-                    name: 'Cached',
-                    type: 'line',
-                    data: data['cached_memory']
-                }, {
-                    name: 'Used',
-                    type: 'line',
-                    data: data['used_memory']
-                }]
-                memoryChart.setOption(memoryOption);
-            }
-        })
+            })
+        }
+
+        makeRequest()
+        setInterval(makeRequest, duration > 24 ? 100000 : 10000)
     }
     reloadChart()
 </script>
