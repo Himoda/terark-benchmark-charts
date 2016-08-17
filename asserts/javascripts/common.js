@@ -19,7 +19,7 @@ function InitMsgSend(element, timeout, type, tel_element) {
     var count = timeout
     var originalText = $(element).text()
     var event = function () {
-        if(tel_element.val().length != 11) {
+        if (tel_element.val().length != 11) {
             alert("手机号码必须是11位!")
             return
         }

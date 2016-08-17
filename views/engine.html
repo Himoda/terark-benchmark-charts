@@ -174,7 +174,7 @@
                     opsOption.xAxis = {
                         data: data['time_bucket'].map(function (current, index, array) {
                             var t = new Date(1970, 0, 1) // Epoch
-                            t.setSeconds(current);
+                            t.setSeconds(current + 8 * 60 * 60) // 加8个小时，转换成CST
                             return t.Format("yyyy-MM-dd hh:mm:ss")
                         })
                     }
@@ -201,7 +201,7 @@
                     cpuOption.xAxis = {
                         data: data['time_bucket'].map(function (current, index, array) {
                             var t = new Date(1970, 0, 1) // Epoch
-                            t.setSeconds(current);
+                            t.setSeconds(current + 8 * 60 * 60) // 加8个小时，转换成CST
                             return t.Format("yyyy-MM-dd hh:mm:ss")
                         })
                     }
@@ -215,8 +215,8 @@
                     // Memory Usage
                     memoryOption.xAxis = {
                         data: data['time_bucket'].map(function (current, index, array) {
-                            var t = new Date(1970, 0, 1) // Epoch
-                            t.setSeconds(current);
+                            var t = new Date(1970, 0, 1)  // UTC
+                            t.setSeconds(current + 8 * 60 * 60) // 加8个小时，转换成CST
                             return t.Format("yyyy-MM-dd hh:mm:ss")
                         })
                     }
@@ -227,7 +227,7 @@
                     }, {
                         name: 'Free',
                         type: 'line',
-                        data: []
+                        data: data['free_memory']
                     }, {
                         name: 'Cached',
                         type: 'line',
