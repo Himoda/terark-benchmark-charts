@@ -23,8 +23,35 @@
     <span><button class="duration gray-button" value="9999">所有时间</button></span>
 </div>
 
+<div id="setting" class="green-button">参数设定</div>
+
 <div id="loading">
     Loading...
+</div>
+
+<!-- 设定参数重启 -->
+<div id="restart" class="hide">
+    <div style="text-align: center;color:#888;">暂未实现</div>
+    <div>
+        <span>线程数：</span>
+        <span><input type="text"/></span>
+    </div>
+    <div>
+        <span>读比例：</span>
+        <span><input type="text"/></span>
+    </div>
+    <div>
+        <span>插入比例：</span>
+        <span><input type="text"/></span>
+    </div>
+    <div>
+        <span>更新比例：</span>
+        <span><input type="text"/></span>
+    </div>
+    <div class="buttons">
+        <button id="restart-submit" class="blue-button">重启</button>
+        <button id="restart-cancel" class="gray-button">取消</button>
+    </div>
 </div>
 
 <div id="ops-chart" style="width: 100%;height:500px;"></div>
@@ -39,6 +66,42 @@
         font-size: 36px;
         text-align: center;
         padding: 100px;
+    }
+
+    #setting {
+        width: 80px;
+        top: 50px;
+        position: absolute;
+        right: 10px;
+        height: 30px;
+        line-height: 32px;
+    }
+
+    #restart {
+        position: absolute;
+        top: 50px;
+        right: 100px;
+        padding: 20px;
+        border: 1px solid #CCC;
+        background-color: #FFF;
+        z-index: 1000;
+    }
+
+    #restart div > span:first-child {
+        width: 80px;
+        display: inline-block;
+    }
+
+    #restart .buttons {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    #restart button {
+        width: 80px;
+        height: 30px;
+        line-height: 32px;
+        display: inline-block;
     }
 </style>
 {% endblock %}
@@ -79,6 +142,18 @@
             $(this).addClass("blue-button")
             reloadChart()
         })
+    })
+
+    $("#setting").click(function () {
+        $("#restart").show()
+    })
+    $("#restart-submit").click(function () {
+        if (confirm("确定要用新参数重启么？")) {
+            console.log("do restart")
+        }
+    })
+    $("#restart-cancel").click(function () {
+        $("#restart").hide()
     })
 
     // 重新加载页面内的所有折线图

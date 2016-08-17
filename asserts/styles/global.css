@@ -116,6 +116,28 @@ input:-ms-input-placeholder, textarea:-ms-input-placeholder {
     background: #9b9fa2;
 }
 
+.green-button {
+    background: #309a75;
+    box-shadow: none;
+    border: 0;
+    border-radius: 3px;
+    line-height: 41px;
+    color: #fff;
+    display: block;
+    padding: 0;
+    width: 100%;
+    font-size: 15px;
+    text-align: center;
+    text-shadow: 0 1px 1px rgba(0,0,0,.2);
+    outline: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+.green-button:hover {
+    background: #3abb8e;
+}
+
 .input-text {
     padding: 1em .8em;
     width: 100%;
