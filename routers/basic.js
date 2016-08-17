@@ -11,17 +11,23 @@ var EngineMemory = require('../models/engine_memory')
 var router = express.Router()
 
 
-/** html render **/
+/******* html render *******/
+
 router.get('/?', function (req, resp) {
-    resp.redirect('/engine/terarkdb')
+    resp.redirect('/engine')
 })
 
-router.get('/engine/:name', function (req, resp) {
-    var name = req.params.name
-    resp.render('engine', {name: name})
+router.get('/engine', function (req, resp) {
+    resp.render('engine')
 })
 
-/** JSON API **/
+
+
+/******* JSON API *******/
+
+/**
+ * 获取引擎的测试数据
+ */
 router.post('/api/engine', function (req, resp) {
     var name = req.body.engine        // terarkdb, wiredtiger, rocksdb
     var duration = req.body.duration  // x hours

@@ -1,7 +1,12 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<div class="selection-ctn"><h3>{{name}}</h3></div>
+<div class="selection-ctn">
+    <span>引擎名称:</span>
+    <span><button class="engine blue-button" value="terarkdb">TerarkDB</button></span>
+    <span><button class="engine gray-button" value="wiredtiger">WiredTiger</button></span>
+    <span><button class="engine gray-button disabled" value="rocksdb">RocksDB</button></span>
+</div>
 <div class="selection-ctn">
     <span>统计间隔:</span>
     <span><button class="step blue-button" value="10">10秒</button></span>
@@ -15,7 +20,7 @@
     <span><button class="duration gray-button" value="12">12小时</button></span>
     <span><button class="duration gray-button" value="24">24小时</button></span>
     <span><button class="duration gray-button" value="72">72小时</button></span>
-    <span><button class="duration gray-button" value="0">所有时间</button></span>
+    <span><button class="duration gray-button" value="9999">所有时间</button></span>
 </div>
 
 <div id="loading">
@@ -65,9 +70,21 @@
         })
     })
 
+    // 切换引擎
+    $(function () {
+        $(".engine").click(function () {
+            $(".engine.blue-button").addClass("gray-button")
+            $(".engine.blue-button").removeClass("blue-button")
+            $(this).removeClass("gray-button")
+            $(this).addClass("blue-button")
+            reloadChart()
+        })
+    })
+
     // 重新加载页面内的所有折线图
     function reloadChart() {
         $("#loading").show();
+        var engine = $(".engine.blue-button").attr("value")
         var step = $(".step.blue-button").attr("value")
         var duration = $(".duration.blue-button").attr("value")
 
@@ -163,7 +180,7 @@
                 contentType: "application/json",
                 async: true,
                 data: JSON.stringify({
-                    "engine": "{{name}}",
+                    "engine": engine,
                     "step": step,
                     "duration": duration
                 }),
