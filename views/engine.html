@@ -5,7 +5,7 @@
     <span>引擎名称:</span>
     <span><button class="engine blue-button" value="terarkdb">TerarkDB</button></span>
     <span><button class="engine gray-button" value="wiredtiger">WiredTiger</button></span>
-    <span><button class="engine gray-button disabled" value="rocksdb">RocksDB</button></span>
+    <span><button class="engine gray-button" value="rocksdb">RocksDB</button></span>
 </div>
 <div class="selection-ctn">
     <span>统计间隔:</span>
@@ -24,6 +24,7 @@
 </div>
 
 <div id="setting" class="green-button">参数设定</div>
+<div id="auto-refresh" value="0" class="green-button disabled">实时更新</div>
 
 <div id="loading">
     Loading...
@@ -46,6 +47,10 @@
     </div>
     <div>
         <span>更新比例：</span>
+        <span><input type="text"/></span>
+    </div>
+    <div>
+        <span>密码：</span>
         <span><input type="text"/></span>
     </div>
     <div class="buttons">
@@ -75,6 +80,7 @@
         right: 10px;
         height: 30px;
         line-height: 32px;
+        display: none;
     }
 
     #restart {
@@ -102,6 +108,20 @@
         height: 30px;
         line-height: 32px;
         display: inline-block;
+    }
+
+    #auto-refresh {
+        width: 100px;
+        top: 50px;
+        position: absolute;
+        right: 10px;
+        height: 30px;
+        line-height: 32px;
+    }
+
+    .disabled {
+        background-color: #CCCCCC;
+        cursor: pointer !important;
     }
 </style>
 {% endblock %}
@@ -335,7 +355,20 @@
         }
 
         makeRequest()
-        setInterval(makeRequest, duration > 24 ? 100000 : 10000)
+        var intervalId = 0
+        $("#auto-refresh").click(function () {
+            var val = $(this).attr("value")
+            if (val == 0) {
+                $(this).attr("value", 1)
+                $(this).removeClass("disabled")
+                intervalId = setInterval(makeRequest, duration > 24 ? 100000 : 10000)
+            } else {
+                $(this).attr("value", 0)
+                $(this).addClass("disabled")
+                clearInterval(intervalId)
+            }
+        })
+
     }
     reloadChart()
 </script>
