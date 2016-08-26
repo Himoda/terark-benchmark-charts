@@ -9,9 +9,10 @@
 </div>
 <div class="selection-ctn">
     <span>统计间隔:</span>
-    <span><button class="step blue-button" value="10">10秒</button></span>
-    <!--<span><button class="step gray-button" value="30">30秒</button></span>-->
-    <!--<span><button class="step gray-button" value="60">1分钟</button></span>-->
+    <span><button class="step gray-button" value="10">10秒</button></span>
+    <span><button class="step blue-button" value="30">30秒</button></span>
+    <span><button class="step gray-button" value="60">1分钟</button></span>
+    <span><button class="step gray-button" value="600">10分钟</button></span>
 </div>
 <div class="selection-ctn">
     <span>统计历史:</span>
@@ -207,7 +208,7 @@
                 trigger: 'axis'
             },
             legend: {
-                data: ['利用率(%)']
+                data: ['利用率(%)', 'iowait(%)']
             },
             toolbox: {
                 feature: {saveAsImage: {}}
@@ -269,11 +270,7 @@
                     $("#loading").hide();
                     // OPS
                     opsOption.xAxis = {
-                        data: data['time_bucket'].map(function (current, index, array) {
-                            var t = new Date(1970, 0, 1) // Epoch
-                            t.setSeconds(current + 8 * 60 * 60) // 加8个小时，转换成CST
-                            return t.Format("yyyy-MM-dd hh:mm:ss")
-                        })
+                        data: data['time_bucket']
                     }
                     opsOption.series = [{
                         name: '总操作',
@@ -296,26 +293,22 @@
 
                     // CPU Usage
                     cpuOption.xAxis = {
-                        data: data['time_bucket'].map(function (current, index, array) {
-                            var t = new Date(1970, 0, 1) // Epoch
-                            t.setSeconds(current + 8 * 60 * 60) // 加8个小时，转换成CST
-                            return t.Format("yyyy-MM-dd hh:mm:ss")
-                        })
+                        data: data['time_bucket']
                     }
                     cpuOption.series = [{
                         name: '利用率(%)',
                         type: 'line',
                         data: data['cpu_usage']
+                    }, {
+                        name: 'iowait(%)',
+                        type: 'line',
+                        data: data['cpu_iowait']
                     }]
                     cpuChart.setOption(cpuOption);
 
                     // Memory Usage
                     memoryOption.xAxis = {
-                        data: data['time_bucket'].map(function (current, index, array) {
-                            var t = new Date(1970, 0, 1)  // UTC
-                            t.setSeconds(current + 8 * 60 * 60) // 加8个小时，转换成CST
-                            return t.Format("yyyy-MM-dd hh:mm:ss")
-                        })
+                        data: data['time_bucket']
                     }
                     memoryOption.series = [{
                         name: 'Total',
@@ -340,7 +333,9 @@
         }
 
         makeRequest()
-        setInterval(makeRequest, duration > 24 ? 100000 : 10000)
+        if (duration == 1) {
+            setInterval(makeRequest, duration > 24 ? 100000 : 10000)
+        }
     }
     reloadChart()
 </script>

@@ -17,7 +17,7 @@ var EngineCpu = db.define('engine_test_cpu_10s', {
 
 EngineCpu.findAllByTimeBucket = function (name, time_bucket) {
     return EngineCpu.findAll({
-        attributes: ["time_bucket", "usage"],
+        attributes: ["time_bucket", "usage", "iowait"],
         order: [["time_bucket", "ASC"]],
         where: {
             engine_name: name,
@@ -27,17 +27,22 @@ EngineCpu.findAllByTimeBucket = function (name, time_bucket) {
         },
         raw: true
     }).then(function (data) {
-        var usage = []
+        var cpu_data = {
+            usage: [],
+            iowait: []
+        }
         var i = 0
         time_bucket.map(function (item) {
-            if(i < data.length && item == data[i].time_bucket) {
-                usage.push(data[i].usage)
+            if (i < data.length && item == data[i].time_bucket) {
+                cpu_data.usage.push(data[i].usage)
+                cpu_data.iowait.push(data[i].iowait)
                 i++
-            }else{
-                usage.push('')
+            } else {
+                cpu_data.usage.push('')
+                cpu_data.iowait.push('')
             }
         })
-        return usage
+        return cpu_data
     })
 }
 
