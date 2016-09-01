@@ -7,6 +7,7 @@ var express = require('express')
 var EngineOps = require('../models/engine_ops')
 var EngineCpu = require('../models/engine_cpu')
 var EngineMemory = require('../models/engine_memory')
+var EngineDBSize = require('../models/engine_dbsize')
 
 var router = express.Router()
 
@@ -44,6 +45,9 @@ router.post('/api/engine', function (req, resp) {
         result.free_memory = memory_data.free_memory
         result.cached_memory = memory_data.cached_memory
         result.used_memory = memory_data.used_memory
+        return EngineDBSize.findAllByTimeBucket(name, result.time_bucket)
+    }).then(function (dbsize_data) {
+        result.dbsize = dbsize_data
 
         // 按照step，merge数据
         if (step > 1) {

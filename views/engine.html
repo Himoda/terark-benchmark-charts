@@ -18,6 +18,7 @@
     <span>统计历史:</span>
     <span><button class="duration blue-button" value="1">1小时</button></span>
     <span><button class="duration gray-button" value="3">3小时</button></span>
+    <span><button class="duration gray-button" value="6">6小时</button></span>
     <span><button class="duration gray-button" value="12">12小时</button></span>
     <span><button class="duration gray-button" value="24">24小时</button></span>
     <span><button class="duration gray-button" value="72">72小时</button></span>
@@ -62,6 +63,7 @@
 <div id="ops-chart" style="width: 100%;height:500px;"></div>
 <div id="cpu-chart" style="width: 100%;height:500px;"></div>
 <div id="memory-chart" style="width: 100%;height:500px;"></div>
+<div id="dbsize-chart" style="width: 100%;height:500px;"></div>
 
 {% endblock %}
 
@@ -172,6 +174,7 @@
         var opsChart = echarts.init(document.getElementById('ops-chart'));
         var cpuChart = echarts.init(document.getElementById('cpu-chart'))
         var memoryChart = echarts.init(document.getElementById('memory-chart'))
+        var dbsizeChart = echarts.init(document.getElementById('dbsize-chart'))
 
         // 指定图表的配置项和数据
         var opsOption = {
@@ -236,6 +239,34 @@
             },
             legend: {
                 data: ['Total', 'Free', 'Cached', 'Used']
+            },
+            toolbox: {
+                feature: {saveAsImage: {}}
+            },
+            yAxis: [
+                {type: 'value'}
+            ],
+            dataZoom: [
+                {
+                    type: 'slider',
+                    show: true,
+                    xAxisIndex: [0],
+                    start: 0,
+                    end: 100
+                }
+            ]
+        };
+
+        // 指定图表的配置项和数据
+        var dbsizeOption = {
+            title: {
+                text: 'DB Size(MB)'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['dbsize(MB)']
             },
             toolbox: {
                 feature: {saveAsImage: {}}
@@ -328,6 +359,17 @@
                         data: data['used_memory']
                     }]
                     memoryChart.setOption(memoryOption);
+
+                    // DB Size
+                    dbsizeOption.xAxis = {
+                        data: data['time_bucket']
+                    }
+                    dbsizeOption.series = [{
+                        name: 'dbsize(MB)',
+                        type: 'line',
+                        data: data['dbsize']
+                    }]
+                    dbsizeChart.setOption(dbsizeOption);
                 }
             })
         }
