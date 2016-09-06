@@ -24,7 +24,7 @@
     <span><button class="duration gray-button" value="12">12小时</button></span>
     <span><button class="duration gray-button" value="24">24小时</button></span>
     <span><button class="duration gray-button" value="72">72小时</button></span>
-    <span><button class="duration gray-button" value="9999">所有时间</button></span>
+    <span><button class="duration gray-button" value="9999">7天内</button></span>
 </div>
 
 <div id="setting" class="green-button">参数设定</div>
@@ -151,6 +151,7 @@
             $(this).removeClass("gray-button")
             $(this).addClass("blue-button")
             reloadChart()
+            reloadLatencyPercentile()
         })
     })
 
@@ -362,9 +363,18 @@
                     }]
                     memoryChart.setOption(memoryOption);
 
-                    // DB Size
+                    // DB Size/ Disk Info
                     dbsizeOption.xAxis = {
                         data: data['time_bucket']
+                    }
+                    dbsizeOption.tooltip = {
+                        trigger: 'axis',
+                        formatter: function (params) {
+                            var index = params[0].dataIndex
+                            var str = "dbsize(MB) : " + params[0].value + " MB\n" + data['diskinfo'][index];
+                            console.log(str)
+                            return "<pre>" + str + "</pre>"
+                        }
                     }
                     dbsizeOption.series = [{
                         name: 'dbsize(MB)',
@@ -377,10 +387,70 @@
         }
 
         makeRequest()
+        // 间隔是一小时的时候，定期进行采样
         if (duration == 1) {
             setInterval(makeRequest, duration > 24 ? 100000 : 10000)
         }
     }
     reloadChart()
+
+
+    // 单独渲染latency percentile, 不进行自动刷新
+    function reloadLatencyPercentile() {
+        var engine = $(".engine.blue-button").attr("value")
+        var step = $(".step.blue-button").attr("value")
+        var duration = $(".duration.blue-button").attr("value")
+        var latencyChart = echarts.init(document.getElementById('latency-chart'));
+        var latencyOption = {
+            title: {
+                text: 'Latency Percentile'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['Percentile']
+            },
+            toolbox: {
+                feature: {saveAsImage: {}}
+            },
+            yAxis: [
+                {type: 'value'}
+            ],
+            dataZoom: [
+                {
+                    type: 'slider',
+                    show: true,
+                    xAxisIndex: [0],
+                    start: 0,
+                    end: 100
+                }
+            ]
+        };
+        $.ajax({
+            type: "POST",
+            url: "/api/engine/latency",
+            contentType: "application/json",
+            async: true,
+            data: JSON.stringify({
+                "engine": engine,
+                "step": step,
+                "duration": duration
+            }),
+            dataType: "json",
+            success: function (data) {
+                // OPS
+                latencyOption.xAxis = {
+                    data: data['operations']
+                }
+                latencyOption.series = [{
+                    name: 'Percentile',
+                    type: 'line',
+                    data: data['percentile']
+                }]
+                latencyChart.setOption(latencyOption);
+            }
+        })
+    }
 </script>
 {% endblock %}

@@ -6,19 +6,19 @@ var Sequelize = require("sequelize")
 
 var db = require("./db")
 
-var EngineDBSize = db.define('engine_test_dbsize_10s', {
+var EngineDiskInfo = db.define('engine_test_diskinfo_10s', {
     time_bucket: Sequelize.INTEGER,
-    dbsize: Sequelize.INTEGER,
+    diskinfo: Sequelize.TEXT,
     engine_name: Sequelize.TEXT
 }, {
     timestamps: false,
-    tableName: "engine_test_dbsize_10s"
+    tableName: "engine_test_diskinfo_10s"
 });
 
 
-EngineDBSize.findAllByTimeBucket = function (name, time_bucket) {
-    return EngineDBSize.findAll({
-        attributes: ["time_bucket", "dbsize"],
+EngineDiskInfo.findAllByTimeBucket = function (name, time_bucket) {
+    return EngineDiskInfo.findAll({
+        attributes: ["time_bucket", "diskinfo"],
         order: [["time_bucket", "ASC"]],
         where: {
             engine_name: name,
@@ -28,18 +28,18 @@ EngineDBSize.findAllByTimeBucket = function (name, time_bucket) {
         },
         raw: true
     }).then(function (data) {
-        var dbsize_data = []
+        var diskinfo_data = []
         var i = 0
         time_bucket.map(function (item) {
             if (i < data.length && item == data[i].time_bucket) {
-                dbsize_data.push(parseInt(data[i].dbsize / 1024))
+                diskinfo_data.push(data[i].diskinfo)
                 i++
             } else {
-                dbsize_data.push('')
+                diskinfo_data.push('')
             }
         })
-        return dbsize_data
+        return diskinfo_data
     })
 }
 
-module.exports = EngineDBSize
+module.exports = EngineDiskInfo

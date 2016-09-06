@@ -8,6 +8,7 @@ var EngineOps = require('../models/engine_ops')
 var EngineCpu = require('../models/engine_cpu')
 var EngineMemory = require('../models/engine_memory')
 var EngineDBSize = require('../models/engine_dbsize')
+var EngineDiskInfo = require('../models/engine_diskinfo')
 
 var router = express.Router()
 
@@ -48,13 +49,26 @@ router.post('/api/engine', function (req, resp) {
         return EngineDBSize.findAllByTimeBucket(name, result.time_bucket)
     }).then(function (dbsize_data) {
         result.dbsize = dbsize_data
+        return EngineDiskInfo.findAllByTimeBucket(name, result.time_bucket)
+    }).then(function (diskinfo_data) {
+        result.diskinfo = diskinfo_data
 
         // 按照step，merge数据
         if (step > 1) {
+            // 遍历所有的key，如diskinfo, dbsize等
             for (var k in result) {
                 var data = []
                 var tmp = 0
+                // 遍历每一个key中的所有数据, 求平均
                 for (var i = 0; i < result[k].length; i++) {
+                    // 文本数据直接保存最后一个数据
+                    if (typeof result[k][i] != 'number') {
+                        if (i % step == step - 1) {
+                            data.push(result[k][i])
+                        }
+                        continue
+                    }
+
                     if (i % step == 0) {
                         tmp = result[k][i]
                     } else if (i % step == step - 1) {
@@ -76,6 +90,13 @@ router.post('/api/engine', function (req, resp) {
 
         resp.json(result)
     })
+})
+
+router.post('/api/engine/latency', function (req, resp) {
+    var name = req.body.engine        // terarkdb, wiredtiger, rocksdb
+    var duration = req.body.duration  // x hours
+    var step = req.body.step / 10     // 1 / 3 / 6 / 60
+    var result = {}
 })
 
 /**
