@@ -6,6 +6,7 @@
     <span><button class="engine blue-button" value="terarkdb">TerarkDB</button></span>
     <span><button class="engine gray-button" value="wiredtiger">WiredTiger</button></span>
     <span><button class="engine gray-button" value="rocksdb">RocksDB</button></span>
+    <span><button class="engine gray-button" value="terocksdb">TerocksDB</button></span>
 </div>
 <div class="selection-ctn">
     <span>统计间隔:</span>
@@ -309,7 +310,12 @@
                     opsOption.series = [{
                         name: '总操作',
                         type: 'line',
-                        data: data['ops_total']
+                        data: data['ops_total'],
+                        markLine: {
+                            data: [
+                                {type: 'average', name: '总操作平均值'}
+                            ]
+                        }
                     }, {
                         name: '读操作',
                         type: 'line',
@@ -371,7 +377,7 @@
                         trigger: 'axis',
                         formatter: function (params) {
                             var index = params[0].dataIndex
-                            var str = "dbsize(MB) : " + params[0].value + " MB\n" + data['diskinfo'][index];
+                            var str = params[0].name + "\ndbsize(MB) : " + params[0].value + " MB\n" + data['diskinfo'][index];
                             return "<pre>" + str.replace(/\.\/experiment\/terark_wiki/g, "") + "</pre>"
                         }
                     }

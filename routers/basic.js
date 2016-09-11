@@ -65,10 +65,11 @@ router.post('/api/engine', function (req, resp) {
                     if (typeof result[k][i] != 'number') {
                         if (i % step == step - 1) {
                             data.push(result[k][i])
+                        } else {
+                            continue
                         }
-                        continue
                     }
-
+                    // 非文本数据求平均
                     if (i % step == 0) {
                         tmp = result[k][i]
                     } else if (i % step == step - 1) {
