@@ -65,9 +65,8 @@ router.post('/api/engine', function (req, resp) {
                     if (typeof result[k][i] != 'number') {
                         if (i % step == step - 1) {
                             data.push(result[k][i])
-                        } else {
-                            continue
                         }
+                        continue
                     }
                     // 非文本数据求平均
                     if (i % step == 0) {
@@ -83,6 +82,7 @@ router.post('/api/engine', function (req, resp) {
             }
         }
 
+        console.log(result.diskinfo)
         result.time_bucket = result.time_bucket.map(function (item) {
             var date = new Date(1970, 0, 1)
             date.setSeconds(item + 8 * 60 * 60)
