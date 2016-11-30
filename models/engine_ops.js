@@ -17,6 +17,10 @@ var EngineOps = db.define('engine_test_ops_10s', {
 });
 
 
+EngineOps.findAllEngineNames = function () {
+	return db.query("SELECT DISTINCT engine_name FROM engine_test_ops_10s", { type: db.QueryTypes.SELECT})
+}
+
 EngineOps.findAllByName = function (name, duration) {
     var start_time_bucket = parseInt(new Date().getTime()/1000 - duration * 60 * 60)
     return EngineOps.findAll({

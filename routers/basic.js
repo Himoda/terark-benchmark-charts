@@ -20,7 +20,9 @@ router.get('/?', function (req, resp) {
 })
 
 router.get('/engine', function (req, resp) {
-    resp.render('engine')
+	EngineOps.findAllEngineNames().then(function(names){
+	    resp.render('engine', {engines: names})
+	})
 })
 
 

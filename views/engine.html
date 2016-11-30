@@ -3,10 +3,15 @@
 {% block content %}
 <div class="selection-ctn">
     <span>引擎名称:</span>
+    <!--
     <span><button class="engine blue-button" value="terarkdb">TerarkDB</button></span>
     <span><button class="engine gray-button" value="wiredtiger">WiredTiger</button></span>
     <span><button class="engine gray-button" value="rocksdb">RocksDB</button></span>
     <span><button class="engine gray-button" value="terocksdb">TerocksDB</button></span>
+    -->
+    {% for engine in engines %}
+    <span><button class="engine gray-button" value="{{engine.engine_name}}">{{ engine.engine_name }}</button></span>
+    {% endfor %}
 </div>
 <div class="selection-ctn">
     <span>统计间隔:</span>
