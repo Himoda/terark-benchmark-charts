@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block content %}
+<div>URL Params : engine, step(以秒为单位), duration(以小时为单位，如果输入是区间，请不要加这个参数), start(如2012-12-10 10:31:33), end(同start)</div>
 <div class="selection-ctn">
     <span>引擎名称:</span>
     <!--
@@ -17,8 +18,8 @@
     <span>统计间隔:</span>
     <span><button class="step gray-button" value="10">10秒</button></span>
     <span><button class="step blue-button" value="30">30秒</button></span>
-    <span><button class="step gray-button" value="60">1分钟</button></span>
-    <span><button class="step gray-button" value="600">10分钟</button></span>
+    <span><button class="step gray-button" value="60">60秒</button></span>
+    <span><button class="step gray-button" value="600">600秒</button></span>
     <span><button class="step gray-button" value="1800">30分钟</button></span>
     <span><button class="step gray-button" value="3600">60分钟</button></span>
 </div>
@@ -30,7 +31,11 @@
     <span><button class="duration gray-button" value="12">12小时</button></span>
     <span><button class="duration gray-button" value="24">24小时</button></span>
     <span><button class="duration gray-button" value="72">72小时</button></span>
-    <span><button class="duration gray-button" value="9999">7天内</button></span>
+    <span><button class="duration gray-button" value="240">240小时</button></span>
+    <span>
+	    <input type="text" id="start-time" value="2016-12-05 15:10:00"/> to <input type="text" id="end-time" value="2016-12-05 00:00:00"/>
+    </span>
+    <span><button id="choose-time" class="gray-button" value="0">提交</button></span>
 </div>
 
 <div id="setting" class="green-button">参数设定</div>
@@ -127,6 +132,13 @@
 <script type="text/javascript" src="/asserts/javascripts/common.js"></script>
 
 <script type="text/javascript">
+	(function($){
+		$.getUrlVar = function(key){
+			var result = new RegExp(key + "=([^&]*)", "i").exec(window.location.search); 
+			return result && unescape(result[1]) || ""; 
+		};
+	})(jQuery);
+
     // 切换统计间隔时间
     $(function () {
         $(".step").click(function () {
@@ -136,6 +148,13 @@
             $(this).addClass("blue-button")
             reloadChart()
         })
+
+	var step = $.getUrlVar('step')
+		$('.step').each(function(i, e){
+			if($(e).val() == step) {
+				$(e).click()
+			}
+		})
     })
 
     // 切换统计时间区间
@@ -145,8 +164,16 @@
             $(".duration.blue-button").removeClass("blue-button")
             $(this).removeClass("gray-button")
             $(this).addClass("blue-button")
+	    $("#choose-time").val(0)
             reloadChart()
         })
+
+	var duration = $.getUrlVar('duration')
+	$('.duration').each(function(i, e){
+		if($(e).val() == duration) {
+			$(e).click()
+		}
+	})
     })
 
     // 切换引擎
@@ -157,8 +184,34 @@
             $(this).removeClass("gray-button")
             $(this).addClass("blue-button")
             reloadChart()
-            reloadLatencyPercentile()
         })
+
+	var engine = $.getUrlVar('engine')
+	if(!!engine) {
+		$(".engine").each(function(i, e){
+			if($(e).text() == engine) {
+				$(e).click()
+			}
+		})
+	}
+    })
+    // 选择指定时间区间
+    $(function () {
+        $("#choose-time").click(function () {
+	    var start = $("#start-time").val();
+	    var end = $("#end-time").val();
+	    $("#choose-time").val(start + "~" + end);
+	    reloadChart();
+	})
+	var duration = $.getUrlVar('duration')
+	var start = $.getUrlVar('start')
+	var end = $.getUrlVar('end')
+	if(!!start && !!end && !duration) {
+		$("#start-time").val(start)
+		$("#end-time").val(end)
+		$("#choose-time").click()
+	}
+
     })
 
     $("#setting").click(function () {
@@ -179,7 +232,10 @@
         var engine = $(".engine.blue-button").attr("value")
         var step = $(".step.blue-button").attr("value")
         var duration = $(".duration.blue-button").attr("value")
-
+	if($("#choose-time").val() != 0) {
+		duration = $("#choose-time").val()
+	}
+	
         var opsChart = echarts.init(document.getElementById('ops-chart'));
         var cpuChart = echarts.init(document.getElementById('cpu-chart'))
         var memoryChart = echarts.init(document.getElementById('memory-chart'))

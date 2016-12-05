@@ -22,14 +22,26 @@ EngineOps.findAllEngineNames = function () {
 }
 
 EngineOps.findAllByName = function (name, duration) {
-    var start_time_bucket = parseInt(new Date().getTime()/1000 - duration * 60 * 60)
+    var start_time_bucket;
+    var end_time_bucket;
+    
+    if(duration.indexOf('~') > -1){
+	console.log(duration)
+	start_time_bucket = parseInt(new Date(duration.split('~')[0]).getTime()/1000)
+	end_time_bucket = parseInt(new Date(duration.split('~')[1]).getTime()/1000)
+    }else{
+        start_time_bucket = parseInt(new Date().getTime()/1000 - duration * 60 * 60)
+        end_time_bucket = parseInt(new Date().getTime()/1000)
+    }
+
     return EngineOps.findAll({
         attributes: ["time_bucket", "ops", "ops_type"],
         order: [["time_bucket", "ASC"]],
         where: {
             engine_name: name,
             time_bucket: {
-                $gte: start_time_bucket
+                $gte: start_time_bucket,
+		$lte: end_time_bucket
             }
         },
         raw: true
