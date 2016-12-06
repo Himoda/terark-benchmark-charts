@@ -7,59 +7,29 @@ $(function () {
 
 });
 
-/**
- * 通用的，短信发送按钮生成器
- * @param element
- * @param timeout
- * @param type register
- * @param tel_element
- * @constructor
- */
-function InitMsgSend(element, timeout, type, tel_element) {
-    var count = timeout
-    var originalText = $(element).text()
-    var event = function () {
-        if (tel_element.val().length != 11) {
-            alert("手机号码必须是11位!")
-            return
+//
+(function ($) {
+    $.getUrlVar = function (key) {
+        var result = new RegExp(key + "=([^&]*)", "i").exec(window.location.search);
+        return result && unescape(result[1]) || "";
+    };
+
+    $.setUrlVar = function (key, value) {
+        var uri = window.location.search
+        var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+        var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+        if (uri.match(re)) {
+            uri = uri.replace(re, '$1' + key + "=" + value + '$2');
+        } else {
+            uri = uri + separator + key + "=" + value;
         }
-
-        $(element).addClass("disabled")
-        $(element).unbind("click")
-        $(element).text(count)
-        var id = setInterval(function () {
-            $(element).text(--count)
-            if (count == 0) {
-                clearInterval(id)
-                $(element).click(event)
-                $(element).removeClass("disabled")
-                $(element).text(originalText)
-                count = timeout
-            }
-        }, 1000)
-
-        // 后台发送短信
-        $.ajax({
-            type: "GET",
-            url: "/utils/msg/" + type + "/" + tel_element.val(),
-            contentType: "application/json",
-            async: true,
-            dataType: "json",
-            success: function (response) {
-                if (response.status == 200) {
-                    alert("短信已发送, 请查收")
-                } else {
-                    alert(response.msg)
-                }
-            }
-        })
-    }
-    $(element).click(event)
-}
+        window.history.pushState("", "", uri);
+    };
+})(jQuery);
 
 /**
  * var time1 = new Date().Format("yyyy-MM-dd");
- * var time2 = new Date().Format("yyyy-MM-dd HH:mm:ss");
+ * var time2 = new Date().Format("yyyy-MM-dd hh:mm:ss");
  * @param fmt
  * @returns {*}
  * @constructor

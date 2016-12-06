@@ -1,15 +1,8 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<div>URL Params : engine, step(以秒为单位), duration(以小时为单位，如果输入是区间，请不要加这个参数), start(如2012-12-10 10:31:33), end(同start)</div>
 <div class="selection-ctn">
     <span>引擎名称:</span>
-    <!--
-    <span><button class="engine blue-button" value="terarkdb">TerarkDB</button></span>
-    <span><button class="engine gray-button" value="wiredtiger">WiredTiger</button></span>
-    <span><button class="engine gray-button" value="rocksdb">RocksDB</button></span>
-    <span><button class="engine gray-button" value="terocksdb">TerocksDB</button></span>
-    -->
     {% for engine in engines %}
     <span><button class="engine gray-button" value="{{engine.engine_name}}">{{ engine.engine_name }}</button></span>
     {% endfor %}
@@ -33,112 +26,37 @@
     <span><button class="duration gray-button" value="72">72小时</button></span>
     <span><button class="duration gray-button" value="240">240小时</button></span>
     <span>
-	    <input type="text" id="start-time" value="2016-12-05 15:10:00"/> to <input type="text" id="end-time" value="2016-12-05 00:00:00"/>
+	    <input type="text" id="start-time" value="2016-12-05 15:10:00"/> to <input type="text" id="end-time"
+                                                                                   value="2016-12-05 00:00:00"/>
     </span>
     <span><button id="choose-time" class="gray-button" value="0">提交</button></span>
 </div>
-
-<div id="setting" class="green-button">参数设定</div>
 
 <div id="loading">
     Loading...
 </div>
 
-<!-- 设定参数重启 -->
-<div id="restart" class="hide">
-    <div style="text-align: center;color:#888;">暂未实现</div>
-    <div>
-        <span>线程数：</span>
-        <span><input type="text"/></span>
-    </div>
-    <div>
-        <span>读比例：</span>
-        <span><input type="text"/></span>
-    </div>
-    <div>
-        <span>插入比例：</span>
-        <span><input type="text"/></span>
-    </div>
-    <div>
-        <span>更新比例：</span>
-        <span><input type="text"/></span>
-    </div>
-    <div>
-        <span>密码：</span>
-        <span><input type="text"/></span>
-    </div>
-    <div class="buttons">
-        <button id="restart-submit" class="blue-button">重启</button>
-        <button id="restart-cancel" class="gray-button">取消</button>
-    </div>
-</div>
+<button class="close-open-btn" target="ops-chart">OPS</button>
+<div id="ops-chart" class="chart"></div>
 
-<div id="ops-chart" style="width: 100%;height:500px;"></div>
-<div id="cpu-chart" style="width: 100%;height:500px;"></div>
-<div id="memory-chart" style="width: 100%;height:500px;"></div>
-<div id="dbsize-chart" style="width: 100%;height:500px;"></div>
+<button class="close-open-btn" target="cpu-chart">CPU Usage</button>
+<div id="cpu-chart" class="chart"></div>
+
+<button class="close-open-btn" target="memory-chart">Memory Usage</button>
+<div id="memory-chart" class="chart"></div>
+
+<button class="close-open-btn" target="dbsize-chart">DBSize</button>
+<div id="dbsize-chart" class="chart"></div>
 
 {% endblock %}
 
-{% block pageCSS %}
-<style>
-    #loading {
-        font-size: 36px;
-        text-align: center;
-        padding: 100px;
-    }
-
-    #setting {
-        width: 80px;
-        top: 50px;
-        position: absolute;
-        right: 10px;
-        height: 30px;
-        line-height: 32px;
-        display: none;
-    }
-
-    #restart {
-        position: absolute;
-        top: 50px;
-        right: 100px;
-        padding: 20px;
-        border: 1px solid #CCC;
-        background-color: #FFF;
-        z-index: 1000;
-    }
-
-    #restart div > span:first-child {
-        width: 80px;
-        display: inline-block;
-    }
-
-    #restart .buttons {
-        text-align: center;
-        margin-top: 10px;
-    }
-
-    #restart button {
-        width: 80px;
-        height: 30px;
-        line-height: 32px;
-        display: inline-block;
-    }
-</style>
-{% endblock %}
+{% block pageCSS %}{% endblock %}
 
 {% block pageJS %}
 <script type="text/javascript" src="/asserts/javascripts/echarts.min.js"></script>
 <script type="text/javascript" src="/asserts/javascripts/common.js"></script>
 
 <script type="text/javascript">
-	(function($){
-		$.getUrlVar = function(key){
-			var result = new RegExp(key + "=([^&]*)", "i").exec(window.location.search); 
-			return result && unescape(result[1]) || ""; 
-		};
-	})(jQuery);
-
     // 切换统计间隔时间
     $(function () {
         $(".step").click(function () {
@@ -146,15 +64,16 @@
             $(".step.blue-button").removeClass("blue-button")
             $(this).removeClass("gray-button")
             $(this).addClass("blue-button")
+            $.setUrlVar("step", $(this).val())
             reloadChart()
         })
 
-	var step = $.getUrlVar('step')
-		$('.step').each(function(i, e){
-			if($(e).val() == step) {
-				$(e).click()
-			}
-		})
+        var step = $.getUrlVar('step')
+        $('.step').each(function (i, e) {
+            if ($(e).val() == step) {
+                $(e).click()
+            }
+        })
     })
 
     // 切换统计时间区间
@@ -164,16 +83,13 @@
             $(".duration.blue-button").removeClass("blue-button")
             $(this).removeClass("gray-button")
             $(this).addClass("blue-button")
-	    $("#choose-time").val(0)
+            // reset start/end time
+            $("#start-time").val(new Date(new Date().getTime() - $(this).val() * 60 * 60 * 1000).Format("yyyy-MM-dd hh:mm:ss"))
+            $("#end-time").val(new Date().Format("yyyy-MM-dd hh:mm:ss"))
+            $.setUrlVar("start", $("#start-time").val())
+            $.setUrlVar("end", $("#end-time").val())
             reloadChart()
         })
-
-	var duration = $.getUrlVar('duration')
-	$('.duration').each(function(i, e){
-		if($(e).val() == duration) {
-			$(e).click()
-		}
-	})
     })
 
     // 切换引擎
@@ -183,47 +99,44 @@
             $(".engine.blue-button").removeClass("blue-button")
             $(this).removeClass("gray-button")
             $(this).addClass("blue-button")
+            $.setUrlVar("engine", $(this).text())
             reloadChart()
         })
 
-	var engine = $.getUrlVar('engine')
-	if(!!engine) {
-		$(".engine").each(function(i, e){
-			if($(e).text() == engine) {
-				$(e).click()
-			}
-		})
-	}
-    })
-    // 选择指定时间区间
-    $(function () {
-        $("#choose-time").click(function () {
-	    var start = $("#start-time").val();
-	    var end = $("#end-time").val();
-	    $("#choose-time").val(start + "~" + end);
-	    reloadChart();
-	})
-	var duration = $.getUrlVar('duration')
-	var start = $.getUrlVar('start')
-	var end = $.getUrlVar('end')
-	if(!!start && !!end && !duration) {
-		$("#start-time").val(start)
-		$("#end-time").val(end)
-		$("#choose-time").click()
-	}
-
-    })
-
-    $("#setting").click(function () {
-        $("#restart").show()
-    })
-    $("#restart-submit").click(function () {
-        if (confirm("确定要用新参数重启么？")) {
-            console.log("do restart")
+        var engine = $.getUrlVar('engine')
+        if (!!engine) {
+            $(".engine").each(function (i, e) {
+                if ($(e).text() == engine) {
+                    $(e).click()
+                }
+            })
         }
     })
-    $("#restart-cancel").click(function () {
-        $("#restart").hide()
+
+    // 手动选择指定时间区间
+    $(function () {
+        $("#choose-time").click(function () {
+            $.setUrlVar("start", $("#start-time").val())
+            $.setUrlVar("end", $("#end-time").val())
+            reloadChart();
+        })
+
+        var start = $.getUrlVar('start')
+        var end = $.getUrlVar('end')
+
+        if (!!start && !!end) {
+            $("#start-time").val(start)
+            $("#end-time").val(end)
+            reloadChart()
+        }
+    })
+
+    // 展开和关闭图表
+    $(function () {
+        $(".close-open-btn").click(function () {
+            var target = $(this).attr("target")
+            $("#"+target).toggle(100)
+        })
     })
 
     // 重新加载页面内的所有折线图
@@ -231,11 +144,8 @@
         $("#loading").show();
         var engine = $(".engine.blue-button").attr("value")
         var step = $(".step.blue-button").attr("value")
-        var duration = $(".duration.blue-button").attr("value")
-	if($("#choose-time").val() != 0) {
-		duration = $("#choose-time").val()
-	}
-	
+        var duration = $("#start-time").val() + "~" + $("#end-time").val()
+
         var opsChart = echarts.init(document.getElementById('ops-chart'));
         var cpuChart = echarts.init(document.getElementById('cpu-chart'))
         var memoryChart = echarts.init(document.getElementById('memory-chart'))
@@ -459,64 +369,5 @@
         }
     }
     reloadChart()
-
-
-    // 单独渲染latency percentile, 不进行自动刷新
-    function reloadLatencyPercentile() {
-        var engine = $(".engine.blue-button").attr("value")
-        var step = $(".step.blue-button").attr("value")
-        var duration = $(".duration.blue-button").attr("value")
-        var latencyChart = echarts.init(document.getElementById('latency-chart'));
-        var latencyOption = {
-            title: {
-                text: 'Latency Percentile'
-            },
-            tooltip: {
-                trigger: 'axis'
-            },
-            legend: {
-                data: ['Percentile']
-            },
-            toolbox: {
-                feature: {saveAsImage: {}}
-            },
-            yAxis: [
-                {type: 'value'}
-            ],
-            dataZoom: [
-                {
-                    type: 'slider',
-                    show: true,
-                    xAxisIndex: [0],
-                    start: 0,
-                    end: 100
-                }
-            ]
-        };
-        $.ajax({
-            type: "POST",
-            url: "/api/engine/latency",
-            contentType: "application/json",
-            async: true,
-            data: JSON.stringify({
-                "engine": engine,
-                "step": step,
-                "duration": duration
-            }),
-            dataType: "json",
-            success: function (data) {
-                // OPS
-                latencyOption.xAxis = {
-                    data: data['operations']
-                }
-                latencyOption.series = [{
-                    name: 'Percentile',
-                    type: 'line',
-                    data: data['percentile']
-                }]
-                latencyChart.setOption(latencyOption);
-            }
-        })
-    }
 </script>
 {% endblock %}
