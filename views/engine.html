@@ -125,8 +125,8 @@
         var end = $.getUrlVar('end')
 
         if (!!start && !!end) {
-            $("#start-time").val(start)
-            $("#end-time").val(end)
+            $("#start-time").val(start.replace('T',' '))
+            $("#end-time").val(end.replace('T', ' '))
             reloadChart()
         }
     })
