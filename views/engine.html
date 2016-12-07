@@ -116,8 +116,8 @@
     // 手动选择指定时间区间
     $(function () {
         $("#choose-time").click(function () {
-            $.setUrlVar("start", $("#start-time").val())
-            $.setUrlVar("end", $("#end-time").val())
+            $.setUrlVar("start", $("#start-time").val().replace(' ', 'T'))
+            $.setUrlVar("end", $("#end-time").val().replace(' ', 'T'))
             reloadChart();
         })
 
