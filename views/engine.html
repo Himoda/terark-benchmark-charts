@@ -86,8 +86,8 @@
             // reset start/end time
             $("#start-time").val(new Date(new Date().getTime() - $(this).val() * 60 * 60 * 1000).Format("yyyy-MM-dd hh:mm:ss"))
             $("#end-time").val(new Date().Format("yyyy-MM-dd hh:mm:ss"))
-            $.setUrlVar("start", $("#start-time").val())
-            $.setUrlVar("end", $("#end-time").val())
+            $.setUrlVar("start", $("#start-time").val().replace(' ', 'T'))
+            $.setUrlVar("end", $("#end-time").val().replace(' ', 'T'))
             reloadChart()
         })
     })
