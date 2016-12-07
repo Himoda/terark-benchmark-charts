@@ -175,7 +175,7 @@
 .chart {
     width: 100%;
     height: 500px;
-    clear: both;
+    display: block;
 }
 
 .close-open-btn {

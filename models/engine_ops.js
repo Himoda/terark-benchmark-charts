@@ -26,9 +26,8 @@ EngineOps.findAllByName = function (name, duration) {
     var end_time_bucket;
     
     if(duration.indexOf('~') > -1){
-	console.log(duration)
-	start_time_bucket = parseInt(new Date(duration.split('~')[0]).getTime()/1000)
-	end_time_bucket = parseInt(new Date(duration.split('~')[1]).getTime()/1000)
+        start_time_bucket = parseInt(new Date(duration.split('~')[0]).getTime() / 1000)
+        end_time_bucket = parseInt(new Date(duration.split('~')[1]).getTime()/1000)
     }else{
         start_time_bucket = parseInt(new Date().getTime()/1000 - duration * 60 * 60)
         end_time_bucket = parseInt(new Date().getTime()/1000)
