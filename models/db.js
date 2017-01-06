@@ -4,9 +4,10 @@
 
 var Sequelize = require("sequelize")
 var assert = require('assert')
+var config = require('../config')
 
-module.exports = new Sequelize('benchmark', 'terark_benchmark', 'bm@123123', {
-    host: 'rds432w5u5d17qd62iq3o.mysql.rds.aliyuncs.com',
+module.exports = new Sequelize(config.database.db, config.database.user, config.database.passwd, {
+    host: config.database.host,
     dialect: 'mysql',
     logging: false,
 
