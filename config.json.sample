@@ -2,9 +2,10 @@
   "isDevMode": true,
   "port": 4002,
   "database": {
-    "host": "127.0.0.1",
-    "db": "db_name",
-    "user": "username",
-    "passwd": "passwd"
+    "host": "{host}",
+    "port": {port},
+    "db": "{db}",
+    "user": "{user}",
+    "passwd": "{passwd}"
   }
 }

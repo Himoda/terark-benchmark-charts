@@ -8,6 +8,7 @@ var config = require('../config')
 
 module.exports = new Sequelize(config.database.db, config.database.user, config.database.passwd, {
     host: config.database.host,
+    port: config.database.port,
     dialect: 'mysql',
     logging: false,
 
